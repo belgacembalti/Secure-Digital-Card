@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  mongodb:
+    image: mongo:latest
+    container_name: secure_banking_mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    environment:
+      - MONGO_INITDB_DATABASE=secure_banking
+
+  backend:
+    build: ./backend
+    container_name: secure_banking_backend
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - ./backend:/app
+    ports:
+      - "8000:8000"
+    depends_on:
+      - mongodb
+    environment:
+      - DEBUG=1
+      - SECRET_KEY=django-insecure-change-me-in-production
+      - MONGO_URI=mongodb://mongodb:27017/secure_banking
+      - MONGO_DB_NAME=secure_banking
+
+  frontend:
+    build: ./frontend
+    container_name: secure_banking_frontend
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    depends_on:
+      - backend
+
+volumes:
+  mongo_data:
