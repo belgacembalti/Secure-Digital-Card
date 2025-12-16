@@ -12,3 +12,6 @@ gunicorn>=21.2.0
 requests>=2.31.0
 user-agents>=2.2.0
 django-filter>=23.2
+deepface
+tf-keras
+opencv-python

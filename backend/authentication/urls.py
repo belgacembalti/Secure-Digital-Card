@@ -2,7 +2,8 @@ from django.urls import path
 from rest_framework_simplejwt.views import TokenRefreshView
 from .views import (
     RegisterView, CustomTokenObtainPairView, UserProfileView, 
-    LogoutView, ChangePasswordView, UploadProfilePictureView
+    LogoutView, ChangePasswordView, UploadProfilePictureView,
+    FaceLoginView
 )
 
 urlpatterns = [
@@ -13,4 +14,5 @@ urlpatterns = [
     path('change-password/', ChangePasswordView.as_view(), name='change_password'),
     path('upload-profile-picture/', UploadProfilePictureView.as_view(), name='upload_profile_picture'),
     path('logout/', LogoutView.as_view(), name='auth_logout'),
+    path('face-login/', FaceLoginView.as_view(), name='auth_face_login'),
 ]

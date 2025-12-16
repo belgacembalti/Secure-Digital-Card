@@ -4,6 +4,9 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework_simplejwt.views import TokenObtainPairView
 from django.contrib.auth import get_user_model
 from .serializers import RegisterSerializer, UserSerializer, CustomTokenObtainPairSerializer, ChangePasswordSerializer
+from .face_auth import FaceAuth
+from rest_framework_simplejwt.tokens import RefreshToken
+import os
 
 User = get_user_model()
 
@@ -90,3 +93,37 @@ class LogoutView(generics.GenericAPIView):
         # With stateless JWT, client just discards token. 
         # But we can implement blacklist here if needed.
         return Response(status=status.HTTP_205_RESET_CONTENT)
+
+class FaceLoginView(generics.GenericAPIView):
+    permission_classes = [AllowAny]
+    authentication_classes = []
+
+    def post(self, request):
+        image_data = request.data.get('image')
+        if not image_data:
+            return Response({"error": "No image provided"}, status=status.HTTP_400_BAD_REQUEST)
+        
+        matched_path = FaceAuth.verify_face(image_data)
+        
+        if matched_path:
+            try:
+                # matched_path is likely absolute. Get filename
+                filename = os.path.basename(matched_path)
+                
+                # Find user with this profile picture
+                # Django stores path relative to MEDIA_ROOT
+                # detailed match: filter where path ends with filename
+                user = User.objects.filter(profile_picture__icontains=filename).first()
+                
+                if user:
+                    refresh = RefreshToken.for_user(user)
+                    return Response({
+                        'refresh': str(refresh),
+                        'access': str(refresh.access_token),
+                        'user': UserSerializer(user).data
+                    }, status=status.HTTP_200_OK)
+            except Exception as e:
+                logger.error(f"Error finding user for face: {e}")
+                pass
+        
+        return Response({"error": "Face not recognized"}, status=status.HTTP_401_UNAUTHORIZED)

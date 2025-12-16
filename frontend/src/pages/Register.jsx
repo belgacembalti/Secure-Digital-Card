@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
-import { Lock, Mail, User, Loader2, CheckCircle } from 'lucide-react';
+import { Lock, Mail, User, Loader2, CheckCircle, Camera, X } from 'lucide-react';
+import FaceLogin from '../components/FaceLogin';
 
 export default function Register() {
     const { register } = useAuth();
@@ -12,11 +13,18 @@ export default function Register() {
         password: '',
         password2: ''
     });
+    const [faceImage, setFaceImage] = useState(null);
+    const [showCamera, setShowCamera] = useState(false);
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
+    };
+
+    const handleFaceCapture = (imageData) => {
+        setFaceImage(imageData);
+        setShowCamera(false);
     };
 
     const handleSubmit = async (e) => {
@@ -29,7 +37,7 @@ export default function Register() {
 
         setLoading(true);
         try {
-            await register(formData.username, formData.email, formData.password, formData.password2);
+            await register(formData.username, formData.email, formData.password, formData.password2, faceImage);
             // Auto login or redirect to login? Let's redirect for now.
             navigate('/login');
         } catch (err) {
@@ -38,6 +46,21 @@ export default function Register() {
             setLoading(false);
         }
     };
+
+    if (showCamera) {
+        return (
+            <div className="min-h-screen bg-gray-900 flex items-center justify-center p-4">
+                <div className="bg-gray-800 p-8 rounded-2xl shadow-xl w-full max-w-md border border-gray-700">
+                    <h2 className="text-2xl font-bold text-center text-white mb-6">Capture Face</h2>
+                    <FaceLogin
+                        onLogin={handleFaceCapture}
+                        onCancel={() => setShowCamera(false)}
+                        buttonText="Capture Photo"
+                    />
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="min-h-screen bg-gray-900 flex items-center justify-center p-4">
@@ -115,6 +138,20 @@ export default function Register() {
                                 required
                             />
                         </div>
+                    </div>
+
+                    <div className="pt-2">
+                        <button
+                            type="button"
+                            onClick={() => setShowCamera(true)}
+                            className={`w-full py-3 rounded-lg border border-dashed flex items-center justify-center gap-2 transition-colors ${faceImage
+                                    ? 'border-green-500 text-green-500 bg-green-500/10'
+                                    : 'border-gray-600 text-gray-400 hover:border-gray-500 hover:text-gray-300'
+                                }`}
+                        >
+                            <Camera className="w-5 h-5" />
+                            {faceImage ? 'Face Photo Added' : 'Add Face Photo (Optional)'}
+                        </button>
                     </div>
 
                     <button

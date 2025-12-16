@@ -1,0 +1,17 @@
+ERROR during DeepFace.find: cannot identify image file 'C:\\Users\\Administrator\\Desktop\\Secure Digital Card\\backend\\media\\profile_pictures\\test.jpg'
+Traceback (most recent call last):
+  File "C:\Users\Administrator\Desktop\Secure Digital Card\backend\verify_face_recognition.py", line 37, in verify
+    results = DeepFace.find(
+              ^^^^^^^^^^^^^^
+  File "C:\Users\Administrator\AppData\Roaming\Python\Python312\site-packages\deepface\DeepFace.py", line 372, in find
+    return recognition.find(
+           ^^^^^^^^^^^^^^^^^
+  File "C:\Users\Administrator\AppData\Roaming\Python\Python312\site-packages\deepface\modules\recognition.py", line 172, in find
+    storage_images = set(image_utils.yield_images(path=db_path))
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Administrator\AppData\Roaming\Python\Python312\site-packages\deepface\commons\image_utils.py", line 52, in yield_images
+    with Image.open(exact_path) as img:  # lazy
+         ^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Administrator\AppData\Roaming\Python\Python312\site-packages\PIL\Image.py", line 3309, in open
+    raise UnidentifiedImageError(msg)
+PIL.UnidentifiedImageError: cannot identify image file 'C:\\Users\\Administrator\\Desktop\\Secure Digital Card\\backend\\media\\profile_pictures\\test.jpg'

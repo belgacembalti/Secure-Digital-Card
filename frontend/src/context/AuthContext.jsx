@@ -35,16 +35,28 @@ export const AuthProvider = ({ children }) => {
         return true;
     };
 
-    const register = async (username, email, password, password2) => {
-        console.log("AuthContext: Registering user", { username, email });
+    const register = async (username, email, password, password2, profilePicture) => {
+        console.log("AuthContext: Registering user", { username, email, hasProfilePic: !!profilePicture });
         try {
-            const response = await api.post('/auth/register/', { username, email, password, password2 });
+            const payload = { username, email, password, password2 };
+            if (profilePicture) {
+                payload.profile_picture = profilePicture;
+            }
+            const response = await api.post('/auth/register/', payload);
             console.log("AuthContext: Registration successful", response.data);
             return true;
         } catch (error) {
             console.error("AuthContext: Registration failed", error.response?.data || error.message);
             throw error;
         }
+    };
+
+    const faceLogin = async (imageData) => {
+        const response = await api.post('/auth/face-login/', { image: imageData });
+        localStorage.setItem('access_token', response.data.access);
+        localStorage.setItem('refresh_token', response.data.refresh);
+        setUser(response.data.user);
+        return true;
     };
 
     const logout = async () => {
@@ -59,7 +71,7 @@ export const AuthProvider = ({ children }) => {
     };
 
     return (
-        <AuthContext.Provider value={{ user, login, register, logout, loading }}>
+        <AuthContext.Provider value={{ user, login, register, logout, faceLogin, loading }}>
             {children}
         </AuthContext.Provider>
     );
